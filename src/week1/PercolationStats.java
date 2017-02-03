@@ -1,6 +1,3 @@
-import edu.princeton.cs.algs4.StdRandom;
-import edu.princeton.cs.algs4.StdStats;
-
 public class PercolationStats {
 	
 	private double mean;
@@ -19,16 +16,18 @@ public class PercolationStats {
 			Percolation pcTrial= new Percolation(n);
 			int j = 0;
 			while(j <= (n * n - 1)){
-				int pn = (int)Math.random() * n * n;
+				int pn = (int) (Math.random() * n * n);
 				int row = pn / n + 1;
 				int col = pn % n + 1;
+//				System.out.println("pn is " + pn +" row is " + row + " col is " + col);
 				if (pcTrial.isOpen(row, col)){
 					continue;
 				}else{
 					pcTrial.open(row, col);
 					j++;
+//					System.out.println("j is" + j + pcTrial.percolates());
 					if (pcTrial.percolates()){
-						threshold[i] = ((double) trials) / (n * n);
+						threshold[i] = ((double) j) / (n * n);
 						break;
 					}
 				}
