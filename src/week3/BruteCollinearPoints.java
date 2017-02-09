@@ -1,13 +1,18 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class BruteCollinearPoints {
 	
-	ArrayList<LineSegment> lss = new ArrayList<LineSegment>();
+	private ArrayList<LineSegment> lss = new ArrayList<LineSegment>();
 	
-	public BruteCollinearPoints(Point[] points) {
+	public BruteCollinearPoints(Point[] inputPoints) {
+		//immutable
+		Point[] points = inputPoints.clone();
+		
 		if (points == null) {
 			throw new java.lang.NullPointerException();
-		}	
+		}
+		
 		for (Point p : points) {
 			if (p == null) {
 				throw new java.lang.NullPointerException();
@@ -22,6 +27,8 @@ public class BruteCollinearPoints {
 			}
 		}
 		
+		Arrays.sort(points);
+		
 		for (int i = 0; i < points.length; i++) {
 			for (int j = i + 1; j < points.length; j++) {
 				for (int m = j + 1; m < points.length; m++) {
@@ -32,10 +39,7 @@ public class BruteCollinearPoints {
 						Point pointd = points[n];
 						
 						if (pointa.slopeTo(pointb) == pointb.slopeTo(pointc) && 
-								pointb.slopeTo(pointc) == pointc.slopeTo(pointd) &&
-								pointa.compareTo(pointb) < 1 && 
-								pointb.compareTo(pointc) < 1 &&
-								pointc.compareTo(pointd) < 1) {
+								pointb.slopeTo(pointc) == pointc.slopeTo(pointd)) {
 							
 							lss.add(new LineSegment(pointa, pointd));
 							

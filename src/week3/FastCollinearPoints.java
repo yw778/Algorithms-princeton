@@ -3,10 +3,12 @@ import java.util.Arrays;
 
 public class FastCollinearPoints {
 	
-	ArrayList<LineSegment> lss = new ArrayList<LineSegment>();
+	private ArrayList<LineSegment> lss = new ArrayList<LineSegment>();
 	
-	public FastCollinearPoints(Point[] points) {
-				
+	public FastCollinearPoints(Point[] inputPoints) {
+		// immutable		
+		Point[] points = inputPoints.clone();
+		
 		if (points == null) {
 			throw new java.lang.NullPointerException();
 		}
@@ -25,12 +27,13 @@ public class FastCollinearPoints {
 		// sort it in natural order by comparable interface automatically
 		Arrays.sort(points);		
 		// iterate over each point
-		for (Point p : points) {
-			Point[] arraySlopeOrder = points.clone();
-			// after the sort, p is always in the first place.
+		for (int j = 0; j < points.length; j++) {
+			Point[] arraySlopeOrder = Arrays.copyOfRange(points, j, points.length);
+			Point p = points[j];
 			Arrays.sort(arraySlopeOrder, p.slopeOrder());
 			ArrayList<Point> ps = new ArrayList<Point>();
 			ps.add(p);
+			// after sort p is always in the first place
 			for (int i = 1; i < arraySlopeOrder.length - 1; i++) {
 				Point slopePoint = arraySlopeOrder[i];
 				Point nextSlopePoint = arraySlopeOrder[i + 1];
@@ -42,7 +45,9 @@ public class FastCollinearPoints {
 					if (ps.get(ps.size() - 1) != slopePoint)
 						ps.add(slopePoint);
 					ps.add(nextSlopePoint);
-				} else {
+				} 
+				// handle condition when loop ends
+				if (slope != nextslope || (i == (arraySlopeOrder.length - 2))){
 					if (ps.size() > 3) {
 						lss.add(new LineSegment(p, ps.get(ps.size() - 1)));						
 					} 
