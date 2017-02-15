@@ -1,9 +1,11 @@
 import java.awt.Color;
 
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.StdOut;
 
 public class KdTree {
 	
@@ -84,19 +86,19 @@ public class KdTree {
 					compareX = !compareX;
 					continue;
 				} else {
-					RectHV rect = splitRect(node.rect, p, Orientation.LEFT);
+					RectHV rect = splitRect(node.rect, node.p, Orientation.LEFT);
 					node.lb = new Node(p, rect);
 					size += 1;
 					return;
 				}
 			}
-			if (compareX && (p.x() > node.p.x())) {
+			if (compareX && (p.x() >= node.p.x())) {
 				if (node.rt != null) {
 					node = node.rt;
 					compareX = !compareX;
 					continue;
 				} else {
-					RectHV rect = splitRect(node.rect, p, Orientation.RIGHT);
+					RectHV rect = splitRect(node.rect, node.p, Orientation.RIGHT);
 					node.rt = new Node(p, rect);
 					size += 1;
 					return;
@@ -108,19 +110,19 @@ public class KdTree {
 					compareX = !compareX;
 					continue;
 				} else {
-					RectHV rect = splitRect(node.rect, p, Orientation.BOTTOM);
-					node.rt = new Node(p, rect);
+					RectHV rect = splitRect(node.rect, node.p, Orientation.BOTTOM);
+					node.lb = new Node(p, rect);
 					size += 1;
 					return;
 				}	
 			}
-			if (!compareX && (p.y() > node.p.y())) {
+			if (!compareX && (p.y() >= node.p.y())) {
 				if (node.rt != null) {
 					node = node.rt;
 					compareX = !compareX;
 					continue;
 				} else {
-					RectHV rect = splitRect(node.rect, p, Orientation.TOP);
+					RectHV rect = splitRect(node.rect, node.p, Orientation.TOP);
 					node.rt = new Node(p, rect);
 					size += 1;
 					return;
@@ -139,8 +141,8 @@ public class KdTree {
 			if (node == null) return false;
 			if (node.p.equals(p)) return true;
 			
-			if ((compareX && (p.x() < node.p.x())) 
-				|| (!compareX) && (p.y() < node.p.y())) {
+			if ((compareX && p.x() < node.p.x()) 
+				|| (!compareX && p.y() < node.p.y())) {
 				node = node.lb;
 			} else {
 				node = node.rt;
@@ -175,9 +177,9 @@ public class KdTree {
 		if (node == null) return points;
 		if (rect.contains(node.p))
 			points.push(node.p);
-		if (rect.intersects(node.rect)){
-			range(rect, node.lb, points);
-			range(rect, node.rt, points);
+		if (rect.intersects(node.rect)) {
+			points = range(rect, node.lb, points);
+			points = range(rect, node.rt, points);
 		}
 		return points;
 	}
@@ -187,9 +189,8 @@ public class KdTree {
 			throw new java.lang.NullPointerException();
 		}
 		Stack<Point2D> points = new Stack<Point2D>();
-		Node node = root;
-		if (node != null) {
-			range(rect, node, points);
+		if (root != null) {
+			range(rect, root, points);
 		}
 		return points;
 	}
@@ -198,14 +199,14 @@ public class KdTree {
 		if (node == null) return champion;
 		if (champion.distanceTo(p) > node.p.distanceTo(p)) 
 			champion = node.p;
-		if (champion.distanceTo(p) > node.rect.distanceTo(p)){
-			if ((compareX && (p.x() < node.p.x())) 
-					|| (!compareX) && (p.y() < node.p.y())) {
-				nearest(node.lb, p, champion, !compareX);
-				nearest(node.rt, p, champion, !compareX);
+		if (champion.distanceTo(p) > node.rect.distanceTo(p)) {
+			if ((compareX && p.x() < node.p.x()) 
+					|| (!compareX && p.y() < node.p.y())) {
+				champion = nearest(node.lb, p, champion, !compareX);
+				champion = nearest(node.rt, p, champion, !compareX);
 			} else {
-				nearest(node.rt, p, champion, !compareX);
-				nearest(node.lb, p, champion, !compareX);
+				champion = nearest(node.rt, p, champion, !compareX);
+				champion = nearest(node.lb, p, champion, !compareX);
 			}
 		}
 		return champion;	
@@ -216,10 +217,24 @@ public class KdTree {
 			throw new java.lang.NullPointerException();
 		}
 		if (root == null) return null;
-		else return nearest(root, p, root.p, true);
+		return nearest(root, p, root.p, true);
 	}
 	// unit testing of the methods (optional) 
 	public static void main(String[] args) {
-		
-	}
+		KdTree kdTree = new KdTree();
+        String fileName = args[0];
+        In in = new In(fileName);
+        while (!in.isEmpty()) {
+            double x = in.readDouble();
+            double y = in.readDouble();
+            Point2D point = new Point2D(x,y);
+            StdOut.println("contains before: " + kdTree.contains(point));
+            kdTree.insert(point);
+            StdOut.println("point:" + point);
+            StdOut.println("contains after: " + kdTree.contains(point));
+            StdOut.println("size: " + kdTree.size());
+        }
+        kdTree.draw();
+    }
 }
+
